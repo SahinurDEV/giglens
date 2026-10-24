@@ -13,9 +13,12 @@ _Screenshots: the built extension running on locally saved marketplace pages (no
 ## Features
 | Page | What GigLens adds |
 |---|---|
-| Search / category | Badges: price, delivery days, seller level, rating, reviews, orders in queue, favorites (if present). Sort, filter (min rating, max price, min reviews), CSV export. |
-| Gig | Package table (price, delivery, revisions) + relative value score. |
-| Seller profile | Level, rating, response time, member since, last delivery, country, languages, gig count, avg. gig price. |
+| Search / category | Badges: price, delivery days, level, Pro, Choice, rating, reviews, **orders in queue**, **favorites**, **seller's completed orders**, country, optional tags. Sort by any of these (both directions). Filters: price min/max, rating, reviews, delivery, queue min/max, favorites, level, Pro, Choice, online. Top keywords (tag frequency). CSV export. Cards that load while scrolling are picked up automatically. |
+| Gig | Package table (price, delivery, revisions) + relative value score, orders in queue. |
+| Seller profile | Level, rating, response time, member since, country, languages, gig count, avg. gig price. |
+
+### Gig details on search pages
+Orders in queue, favorites, tags, seller country and completed orders are not in search-page data; they are on each gig's own page. With **Load gig details** on (default, can be turned off in the panel's Settings tab), GigLens loads the gig page only for cards you scroll into view, **2 at a time with a 400 ms gap**, and caches results in `chrome.storage.local` for 6 hours. No other site is contacted.
 
 ## Privacy and scope
 - Permissions: `storage` + host `*://*.fiverr.com/*` only.
@@ -25,14 +28,12 @@ _Screenshots: the built extension running on locally saved marketplace pages (no
 ## Field coverage (verified on real pages, Oct 24 2026)
 | Page | Field | Source |
 |---|---|---|
-| Search | price, delivery days, seller level, rating, review count | `listings[0].gigs[]` (`price_i`, `packages.recommended.duration`, `seller_level`, `buying_review_rating(_count)`) |
-| Search | orders in queue, favorites | **not available** on search pages; shown only if the page ever provides them |
-| Gig | package price / delivery / revisions | `packages.packageList[]` (price in cents, duration in hours, revisions `-1` = unlimited) |
-| Gig | rating, reviews, orders in queue | `overview.gig` |
+| Search | price, delivery, level, rating, reviews, Pro, Choice, online, country, seller reviews | search page state `listings[0].gigs[]` |
+| Search | orders in queue, favorites, tags, seller completed orders, response time, price range, 5★ share | gig page state (`overview.gig.ordersInQueue`, `topNav.gigCollectedCount`, `tags.tagsGigList`, `seller.completedOrdersCount`, `sellerCard`, `reviews.breakdown`), fetched per visible card |
+| Gig | package price / delivery / revisions, rating, reviews, orders in queue | `packages.packageList[]` (cents, hours, `-1` = unlimited), `overview.gig` |
 | Seller | level, rating, reviews, response time, member since, country, languages, gig count, avg. gig price | `seller`, `seller.user`, `gigsData[]` |
-| Seller | last delivery | **not on seller pages** (only on gig pages' seller card) |
-
-Search results are lazy-rendered: page state has ~48 gigs but only ~12 cards exist in the HTML initially; badges and sorting apply to cards present in the page.
+| Seller | last delivery | not on seller pages |
+| — | total sales per gig | not published anywhere on the site |
 
 ## How extraction works
 Each page type has an isolated extractor in `src/extract/` that first reads embedded JSON page state (`<script id="perseus-initial-props">` / `__NEXT_DATA__`) and falls back to DOM selectors. Extractors are unit-tested against trimmed, anonymised copies of real pages in `tests/fixtures/real/` (built by `scripts/trim-fixtures.py` from raw pages in the gitignored `tests/fixtures/live/`) plus small synthetic DOM-fallback fixtures. When the marketplace changes its markup, update the relevant extractor and fixture.

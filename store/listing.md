@@ -11,10 +11,12 @@ See price, delivery time, rating and seller stats at a glance while you browse f
 GigLens adds a small panel to freelance gig pages on fiverr.com so you can compare options without opening every tab.
 
 On search results
-- Badges on each card: starting price, delivery time, seller level, rating and review count
-- Sort by price, rating, reviews, delivery time or orders in queue
-- Filter by minimum rating, maximum price and minimum reviews
+- Badges on each card: price, delivery time, seller level, Pro and Choice labels, rating, reviews, orders in queue, favorites, seller's completed orders and country
+- Sort by any of these
+- Filter by price range, rating, reviews, delivery time, orders in queue, favorites, seller level, Pro, Choice or online sellers
+- Top keywords used by the gigs you browse
 - Export the visible results to CSV
+- Works with results that load as you scroll
 
 On a gig page
 - Basic / Standard / Premium side by side: price, delivery time and revisions, plus orders in queue
@@ -24,7 +26,7 @@ On a seller profile
 - Level, rating, response time, member since, country, languages, number of gigs and average gig price
 
 Privacy
-GigLens only reads the page you are looking at. It makes no background requests, has no server and collects no data. Your sort and filter choices are saved on your device.
+GigLens has no server and collects no data. To show orders in queue and favorites, it loads the public page of each gig card you scroll to (two at a time, cached for 6 hours). You can turn this off in the panel. Settings stay on your device.
 
 GigLens is an independent tool. It is not affiliated with, endorsed by, or sponsored by Fiverr. The marketplace may change its pages at any time, which can temporarily break some figures.
 
@@ -32,8 +34,8 @@ GigLens is an independent tool. It is not affiliated with, endorsed by, or spons
 Show extra information about gigs and sellers on the marketplace pages the user is viewing.
 
 ## Permission justifications
-- **storage:** Saves the user's sort and filter preferences locally so they persist between pages. No other data is stored.
-- **Host permission `*://*.fiverr.com/*`:** The content script needs to run on marketplace pages to read the information already shown on the page and display the GigLens panel. It does not run on any other site.
+- **storage:** Saves the user's settings, sort and filter choices, and a 6-hour local cache of gig details so the same gig page is not loaded twice. Nothing leaves the device.
+- **Host permission `*://*.fiverr.com/*`:** The content script needs to run on marketplace pages to read the information shown on the page, load the public gig pages for search cards the user scrolls to (throttled, can be turned off), and display the GigLens panel. It does not run on or contact any other site.
 - **Remote code:** None. All code is bundled in the package.
 
 ## Data usage disclosures
@@ -44,4 +46,4 @@ Show extra information about gigs and sellers on the marketplace pages the user 
 https://sahinurdev.github.io/giglens/privacy.html
 
 ## Screenshots (1280×800)
-store/screenshots/1-search.png, 2-gig.png, 3-seller.png
+store/screenshots/1-search.png, 2-gig.png, 3-seller.png, 4-keywords.png

@@ -8,7 +8,7 @@ def page(st, body=''):
     return f'<!doctype html><html><head><meta charset="utf-8"></head><body>{body}<script id="perseus-initial-props" type="application/json">{json.dumps(st)}</script></body></html>\n'
 names = {}
 def anon(n): return names.setdefault(n, f'seller_{len(names)+1}')
-KEEP = ['gig_id', 'u_id', 'price_i', 'packages', 'buying_review_rating', 'buying_review_rating_count', 'seller_level']
+KEEP = ['is_pro', 'is_fiverr_choice', 'seller_country', 'seller_online', 'seller_rating', 'num_of_packages', 'gig_id', 'u_id', 'price_i', 'packages', 'buying_review_rating', 'buying_review_rating_count', 'seller_level']
 s = state('search.html'); gigs = []
 for i, g in enumerate(s['listings'][0]['gigs'][:12]):
     n = anon(g['seller_name']); x = {k: g[k] for k in KEEP if k in g}
@@ -19,7 +19,10 @@ open(O + 'search-dom.html', 'w').write(page({}, f'<div class="gig_listings-packa
 g = state('gig.html')
 pk = [{k: p.get(k) for k in ['title', 'price', 'duration', 'revisions']} for p in g['packages']['packageList']]
 for p in pk: p['revisions'] = {k: p['revisions'][k] for k in ['name', 'included', 'value']}
-gs = {'general': {'gigId': 1, 'gigTitle': 'Sample logo gig'}, 'overview': {'gig': {k: g['overview']['gig'][k] for k in ['rating', 'ratingsCount', 'ordersInQueue']}, 'seller': {'username': 'seller_1'}}, 'packages': {'packageList': pk}}
+gs = {'general': {'gigId': 1, 'gigTitle': 'Sample logo gig'}, 'overview': {'gig': {k: g['overview']['gig'][k] for k in ['rating', 'ratingsCount', 'ordersInQueue']}, 'seller': {'username': 'seller_1'}}, 'packages': {'packageList': pk},
+      'topNav': {'gigCollectedCount': g['topNav']['gigCollectedCount']}, 'tags': {'tagsGigList': [{'name': t['name']} for t in g['tags']['tagsGigList']]},
+      'sellerCard': {k: g['sellerCard'][k] for k in ['ratingsCount', 'countryCode', 'responseTime', 'recentDelivery', 'memberSince']},
+      'seller': {'completedOrdersCount': g['seller']['completedOrdersCount']}, 'reviews': {'breakdown': g['reviews']['breakdown']}}
 open(O + 'gig.html', 'w').write(page(gs, f'<h1>Sample logo gig</h1><p>{g["overview"]["gig"]["ordersInQueue"]} orders in queue</p>'))
 s = state('seller.html'); se = s['seller']; u = se['user']
 ss = {'seller': {'user': {'name': 'seller_1', 'joinedAt': u['joinedAt'], 'address': {'countryName': u['address']['countryName']}, 'languages': u['languages']},

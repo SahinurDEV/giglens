@@ -15,6 +15,8 @@ export function extractSearch(doc: Document): GigCard[] {
     // Not present in search-page state as of Oct 2026; kept for forward compatibility.
     ordersInQueue: num(g.orders_in_queue), favorites: num(g.favorites_count ?? g.collected_count),
     source: 'json',
+    isPro: !!g.is_pro, isChoice: !!g.is_fiverr_choice, country: g.seller_country ?? null, online: !!g.seller_online,
+    sellerReviews: num(g.seller_rating?.count), sellerRating: num(g.seller_rating?.score), packages: num(g.num_of_packages),
   }));
   return extractSearchDom(doc);
 }

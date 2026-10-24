@@ -11,7 +11,7 @@ const doc = (f: string) => new DOMParser().parseFromString(readFileSync(`tests/f
 
 describe('search', () => {
   it('falls back to DOM', () => { const c = extractSearch(doc('search-dom.html')); expect(c).toHaveLength(8); expect(c[3]).toMatchObject({ id: '1003', price: 90, rating: 4.95, reviews: 2310, sellerLevel: 'New', source: 'dom' }); });
-  it('sorts and filters', () => { const c = extractSearch(doc('search-dom.html')); expect(applyView(c, 'price', false, {})[0].price).toBe(15); expect(applyView(c, 'none', true, { minRating: 4.9, minReviews: 100 }).every((x) => x.rating! >= 4.9 && x.reviews! >= 100)).toBe(true); });
+  it('sorts and filters', () => { const c = extractSearch(doc('search-dom.html')); expect(applyView(c, 'price', false, {})[0].price).toBe(15); expect(applyView(c, 'none', true, { ratingMin: 4.9, reviewsMin: 100 }).every((x) => x.rating! >= 4.9 && x.reviews! >= 100)).toBe(true); });
   it('exports CSV safely', () => { const csv = toCsv([{ ...extractSearch(doc('search-dom.html'))[0], title: '=HYPERLINK("x")' }]); expect(csv.split('\n')).toHaveLength(2); expect(csv).toContain(`"'=HYPERLINK(""x"")"`); });
 });
 describe('gig', () => {

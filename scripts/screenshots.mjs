@@ -10,7 +10,7 @@ import path from 'node:path';
 const LIVE = 'tests/fixtures/live/';
 const ext = path.resolve('dist');
 const shots = [
-  { url: 'https://www.fiverr.com/search/gigs?query=logo%20design', file: 'search.html', out: '1-search.png', prep: async (p) => { await p.locator('#giglens-root select').selectOption('rating'); await p.evaluate(() => { const b = document.querySelector('.giglens-badges'); const card = b.closest('.gig-card-layout') ?? b; scrollTo(0, card.getBoundingClientRect().top + scrollY - 16); }); await p.locator('#giglens-root select').selectOption('rating'); } },
+  { url: 'https://www.fiverr.com/search/gigs?query=logo%20design', file: 'search.html', out: '1-search.png', prep: async (p) => { for (let i = 0; i < 8; i++) { await p.mouse.wheel(0, 500); await p.waitForTimeout(600); } await p.waitForFunction(() => document.querySelectorAll('.giglens-badges .q').length >= 6, null, { timeout: 20000 }); await p.locator('#giglens-root select').selectOption('ordersInQueue'); await p.waitForTimeout(300); await p.evaluate(() => { const b = document.querySelector('.giglens-badges .q').parentElement; const card = b.closest('.gig-card-layout') ?? b; scrollTo(0, card.getBoundingClientRect().top + scrollY - 16); }); } },
   { url: 'https://www.fiverr.com/sample_seller/sample-logo-gig', file: 'gig.html', out: '2-gig.png' },
   { url: 'https://www.fiverr.com/sample_seller?source=gig_page', file: 'seller.html', out: '3-seller.png' },
 ];
@@ -22,6 +22,10 @@ const ctx = await chromium.launchPersistentContext(mkdtempSync(path.join(tmpdir(
 let current = shots[0];
 await ctx.route('**/*', (r) => {
   const req = r.request(); const u = req.url();
+  if ((req.resourceType() === 'fetch' || req.resourceType() === 'xhr') && u.startsWith('https://www.fiverr.com/')) {
+    const f = `${LIVE}gigs/${new URL(u).pathname.replace(/\//g, '_')}.html`;
+    return existsSync(f) ? r.fulfill({ contentType: 'text/html', body: readFileSync(f, 'utf8') }) : r.fulfill({ status: 404, body: '' });
+  }
   if (req.resourceType() === 'document' && u.startsWith('https://www.fiverr.com/')) return r.fulfill({ contentType: 'text/html', body: readFileSync(LIVE + current.file, 'utf8') });
   if (req.resourceType() === 'stylesheet') { const f = `${LIVE}cache/${createHash('md5').update(u).digest('hex').slice(0, 16)}.css`; return existsSync(f) ? r.fulfill({ contentType: 'text/css', body: readFileSync(f) }) : r.abort(); }
   if (req.resourceType() === 'image') return r.fulfill({ contentType: 'image/png', body: placeholder });
@@ -59,5 +63,6 @@ for (const s of shots) {
   await page.waitForTimeout(600);
   await page.screenshot({ path: `store/screenshots/${s.out}` });
   console.log('saved', s.out);
+  if (s.out === '1-search.png') { await page.locator('#giglens-root button', { hasText: 'Keywords' }).click(); await page.waitForTimeout(300); await page.screenshot({ path: 'store/screenshots/4-keywords.png' }); console.log('saved 4-keywords.png'); }
 }
 await ctx.close();

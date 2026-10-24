@@ -4,7 +4,7 @@ export default defineManifest({
   manifest_version: 3,
   name: 'GigLens – Marketplace Insights',
   short_name: 'GigLens',
-  description: 'Shows price, delivery, rating and seller stats on gig pages you browse. Works locally; no account or server.',
+  description: 'Orders in queue, favorites, rating and price on gig search results, with sorting, filters and CSV export. No server.',
   version: pkg.version,
   icons: { 16: 'icons/16.png', 48: 'icons/48.png', 128: 'icons/128.png' },
   permissions: ['storage'],
