@@ -7,6 +7,12 @@ A Chrome (Manifest V3) extension that shows more data on freelance gig pages on 
 ![Top bar](store/screenshots/1-search.png)
 ![Card details](store/screenshots/4-card-details.png)
 ![Dark mode, Bengali](store/screenshots/5-dark-bengali.png)
+![Compare](store/screenshots/6-compare.png)
+![Watchlist](store/screenshots/7-watchlist.png)
+![Tag & title helper](store/screenshots/8-helper.png)
+![Review analyzer](store/screenshots/9-review-analyzer.png)
+
+_The watchlist screenshot uses simulated history for earlier days; today's values are real._
 ![Gig packages](store/screenshots/2-gig.png)
 ![Seller stats](store/screenshots/3-seller.png)
 
@@ -24,11 +30,19 @@ _Screenshots: the built extension running on locally saved marketplace pages (no
 - **Saved filter presets**, **Rising** filter (≤ 50 reviews and ≥ 5 orders in queue), **dark mode** (auto/light/dark), and **Bengali UI** (beta – the Bengali strings are a first draft and need review by a native speaker).
 - Review stats: star breakdown and top industries cover all reviews; buyer countries, order sizes and repeat/business counts come from the ~5 reviews embedded in the page, so treat them as a sample.
 
+### Also in 0.5
+- **Competitor tracker**: 👁 Watch any gig (card button or gig page). GigLens stores one local snapshot per day (queue, reviews, price, favorites) whenever you visit the gig or it loads on a search page, and shows sparklines in the Watchlist. Max 20 watched gigs, 120 snapshots each. Optional **daily background refresh** (Settings, off by default) uses `chrome.alarms`: once a day, one gig page at a time with a 3 s gap, only for watched gigs not yet captured that day.
+- **Niche score** (0–100) for the current search: median orders in queue (demand) vs. total results and median reviews (competition). Heuristic, needs ≥ 3 gigs with details.
+- **Review analyzer** on gig pages: reviews per month and praise/complaint keywords from the reviews embedded in the page (usually 5, so it is a sample).
+- **Tag & title helper**: enter your title and tags; see common title words in the top 10 and popular tags you are missing (tags need gig details loaded).
+- **Rising** filter: ≤ 50 reviews and ≥ 5 orders in queue.
+- **Compare**: 📌 Pin 2–4 gigs and view them side by side.
+
 ### Gig details on search pages
 Orders in queue, favorites, tags, seller country and completed orders are not in search-page data; they are on each gig's own page. With **Load gig details** on (default, can be turned off in the panel's Settings tab), GigLens loads the gig page only for cards you scroll into view, **2 at a time with a 400 ms gap**, and caches results in `chrome.storage.local` for 6 hours. No other site is contacted.
 
 ## Privacy and scope
-- Permissions: `storage` + host `*://*.fiverr.com/*` only.
+- Permissions: `storage`, `alarms` (only for the optional daily watchlist refresh) + host `*://*.fiverr.com/*`.
 - Reads only the page you are viewing. No background requests, crawling, server, analytics or remote code.
 - See [PRIVACY.md](PRIVACY.md) / [hosted policy](https://sahinurdev.github.io/giglens/privacy.html).
 

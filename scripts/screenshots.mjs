@@ -32,12 +32,8 @@ await ctx.route('**/*', (r) => {
   if (u.startsWith('chrome-extension://')) return r.continue();
   return r.abort();
 });
-const page = await ctx.newPage();
-for (const s of shots) {
-  current = s;
-  await page.goto(s.url, { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('#giglens-root, #giglens-bar', { state: 'attached', timeout: 15000 });
-  await page.evaluate(() => {
+const ANON = () => {
+    const sr = document.getElementById('giglens-bar')?.shadowRoot; if (sr && !sr.getElementById('anon-css')) { const st = document.createElement('style'); st.id = 'anon-css'; st.textContent = '.modal .muted{filter:blur(4px)}'; sr.appendChild(st); }
     // Collect real names from page state and replace them everywhere visible.
     const st = JSON.parse(document.getElementById('perseus-initial-props')?.textContent ?? '{}');
     const names = new Set();
@@ -46,7 +42,7 @@ for (const s of shots) {
       const isName = KEYS.test(k) || (k === 'name' && /^(user|seller)$/.test(parent ?? ''));
       if (typeof v === 'string' && isName && v.length >= 2 && v.length < 40) { names.add(v); v.split(/\s+/).forEach((part) => part.length >= 3 && names.add(part)); } else walk(v, k); } })(st);
     for (const sel of ['figure[title]']) document.querySelectorAll(sel).forEach((e) => e.getAttribute('title') && names.add(e.getAttribute('title')));
-    const COMMON = /^(logo|logos|design|designs|designer|brand|branding|studio|graphic|graphics|creative|art|pro|official|the)$/i;
+    const COMMON = /^(seller|logo|logos|design|designs|designer|brand|branding|studio|graphic|graphics|creative|art|pro|official|the)$/i;
     const list = [...names].filter((n) => /[a-z]/i.test(n) && !COMMON.test(n)).sort((a, b) => b.length - a.length);
     const alias = new Map(list.map((n, i) => [n, `Seller ${String.fromCharCode(65 + (i % 26))}`]));
     const re = list.length ? new RegExp('(?<![\\w])(' + list.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')(?![\\w])', 'g') : null;
@@ -58,11 +54,19 @@ for (const s of shots) {
     // Avatars: hide photos, keep a neutral initial circle; blur everything image-like.
     document.querySelectorAll('figure img, img[alt=""], [class*="avatar"] img').forEach((i) => (i.style.visibility = 'hidden'));
     const st2 = document.createElement('style'); st2.textContent = 'img{filter:blur(6px)} video,iframe{display:none!important}'; document.head.appendChild(st2);
-  });
+  };
+const page = await ctx.newPage();
+for (const s of shots) {
+  current = s;
+  await page.goto(s.url, { waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('#giglens-root, #giglens-bar', { state: 'attached', timeout: 15000 });
+  await page.evaluate(ANON);
+
   if (s.prep) await s.prep(page);
   await page.waitForTimeout(600);
   await page.screenshot({ path: `store/screenshots/${s.out}` });
   console.log('saved', s.out);
+  if (s.out === '2-gig.png') { await page.evaluate(() => { const g = document.getElementById('giglens-root').shadowRoot.querySelector('.gl'); g.scrollTop = g.scrollHeight; }); await page.waitForTimeout(300); await page.screenshot({ path: 'store/screenshots/9-review-analyzer.png' }); console.log('saved 9-review-analyzer.png'); }
   if (s.out === '1-search.png') {
     await page.evaluate(() => { const c = document.querySelector('.giglens-badges .q').closest('.giglens-card'); c.querySelector('details').open = true; const card = c.closest('.gig-card-layout') ?? c; scrollTo(0, card.getBoundingClientRect().top + scrollY - 16); });
     await page.waitForTimeout(300); await page.screenshot({ path: 'store/screenshots/4-card-details.png' }); console.log('saved 4-card-details.png');
@@ -71,6 +75,25 @@ for (const s of shots) {
     await page.evaluate(() => { const bar = document.getElementById('giglens-bar'); scrollTo(0, bar.getBoundingClientRect().top + scrollY - 12); });
     await page.waitForTimeout(300); await page.screenshot({ path: 'store/screenshots/5-dark-bengali.png' }); console.log('saved 5-dark-bengali.png');
     const sel2 = page.locator('#giglens-bar .set select'); await sel2.nth(0).selectOption('light'); await sel2.nth(1).selectOption('en'); await page.waitForTimeout(300);
+    await page.locator('#giglens-bar button[title="Settings"]').click();
+    // Pin 3 and watch 3 gigs that have details loaded.
+    const withQ = page.locator('.giglens-card:has(.q)');
+    for (let i = 0; i < 3; i++) { await withQ.nth(i).locator('.giglens-actions button').nth(0).click(); await withQ.nth(i).locator('.giglens-actions button').nth(1).click(); await page.waitForTimeout(250); }
+    // Demo history for the watchlist chart (simulated earlier days; today's value is real).
+    const sw = ctx.serviceWorkers()[0] ?? await ctx.waitForEvent('serviceworker');
+    await sw.evaluate(async () => { const { watch } = await chrome.storage.local.get('watch'); for (const w of Object.values(watch)) { const last = w.snaps.at(-1); if (!last) continue; const base = Date.parse(last.d); const hist = []; for (let i = 13; i >= 1; i--) { const f = 1 - i * 0.03 + ((i * 7) % 5) * 0.01; hist.push({ ...last, d: new Date(base - i * 864e5).toISOString().slice(0, 10), queue: last.queue == null ? null : Math.max(0, Math.round(last.queue * f)), reviews: last.reviews == null ? null : Math.round(last.reviews - i * 3) }); } w.snaps = [...hist, last]; } await chrome.storage.local.set({ watch }); });
+    await page.evaluate(() => { const bar = document.getElementById('giglens-bar'); scrollTo(0, bar.getBoundingClientRect().top + scrollY - 12); });
+    await page.locator('#giglens-bar button', { hasText: 'Compare' }).click(); await page.waitForTimeout(400);
+    await page.evaluate(ANON); await page.screenshot({ path: 'store/screenshots/6-compare.png' }); console.log('saved 6-compare.png');
+    await page.locator('#giglens-bar .modal button', { hasText: 'Close' }).click();
+    await page.locator('#giglens-bar button', { hasText: 'Watchlist' }).click(); await page.waitForTimeout(400);
+    await page.evaluate(ANON); await page.screenshot({ path: 'store/screenshots/7-watchlist.png' }); console.log('saved 7-watchlist.png');
+    await page.locator('#giglens-bar .modal button', { hasText: 'Close' }).click();
+    await page.locator('#giglens-bar button', { hasText: 'helper' }).click();
+    await page.locator('#giglens-bar .helper input').nth(0).fill('I will design a modern minimalist logo for your business');
+    await page.locator('#giglens-bar .helper input').nth(1).fill('logo, minimalist logo, logo design');
+    await page.waitForTimeout(300); await page.evaluate(ANON); await page.screenshot({ path: 'store/screenshots/8-helper.png' }); console.log('saved 8-helper.png');
+    await page.locator('#giglens-bar button', { hasText: 'helper' }).click();
   }
 }
 await ctx.close();

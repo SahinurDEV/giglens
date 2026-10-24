@@ -7,7 +7,8 @@ export default defineManifest({
   description: 'Orders in queue, favorites, rating and price on gig search results, with sorting, filters and CSV export. No server.',
   version: pkg.version,
   icons: { 16: 'icons/16.png', 48: 'icons/48.png', 128: 'icons/128.png' },
-  permissions: ['storage'],
+  permissions: ['storage', 'alarms'],
+  background: { service_worker: 'src/background.ts', type: 'module' },
   host_permissions: ['*://*.fiverr.com/*'],
   content_scripts: [{ matches: ['*://*.fiverr.com/*'], js: ['src/content/index.tsx'], run_at: 'document_idle' }],
 });

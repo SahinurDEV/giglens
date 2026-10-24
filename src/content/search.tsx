@@ -135,7 +135,7 @@ export function TopBar() {
       {ins.totalQueue != null && <span>🚚 <b>{compact(ins.totalQueue)}</b> {t('totalQueue')} · {ins.withDetails} {t('gigsLoaded')}</span>}
       <Extras numFound={numFound} /></div>
     {showSet && <div class="row set">
-      {([['enrich', t('loadDetails')], ['showCountry', t('country')], ['showTags', t('tagsOnCards')], ['showKeywords', t('topKeywords')]] as [keyof Settings, string][]).map(([k, l]) =>
+      {([['enrich', t('loadDetails')], ['showCountry', t('country')], ['showTags', t('tagsOnCards')], ['showKeywords', t('topKeywords')], ['dailyRefresh', t('dailyRefresh')]] as [keyof Settings, string][]).map(([k, l]) =>
         <label class="chk"><input type="checkbox" checked={!!st[k]} onChange={(e) => setSetting({ [k]: (e.target as HTMLInputElement).checked })} />{l}</label>)}
       <span class="lbl">{t('theme')}</span><select value={st.theme} onChange={(e) => setSetting({ theme: (e.target as HTMLSelectElement).value as Settings['theme'] })}><option value="auto">{t('auto')}</option><option value="light">{t('light')}</option><option value="dark">{t('dark')}</option></select>
       <span class="lbl">{t('language')}</span><select value={st.lang} onChange={(e) => setSetting({ lang: (e.target as HTMLSelectElement).value as Settings['lang'] })}><option value="en">English</option><option value="bn">বাংলা (beta)</option></select>
