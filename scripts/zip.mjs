@@ -1,0 +1,10 @@
+import { ZipArchive } from 'archiver';
+import { createWriteStream, mkdirSync, readFileSync } from 'node:fs';
+const v = JSON.parse(readFileSync('package.json', 'utf8')).version;
+mkdirSync('release', { recursive: true });
+const out = `release/giglens-${v}.zip`;
+const a = new ZipArchive({ zlib: { level: 9 } });
+a.pipe(createWriteStream(out));
+a.glob('**/*', { cwd: 'dist', ignore: ['.vite/**'] });
+await a.finalize();
+console.log(out);

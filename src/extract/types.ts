@@ -1,0 +1,4 @@
+export interface GigCard { id: string; title: string; url: string; seller: string; sellerLevel: string | null; price: number | null; deliveryDays: number | null; rating: number | null; reviews: number | null; ordersInQueue: number | null; favorites: number | null; source: 'json' | 'dom'; }
+export interface GigPackage { name: string; price: number | null; deliveryDays: number | null; revisions: number | null; }
+export interface GigPage { id: string | null; title: string; seller: string; packages: GigPackage[]; rating: number | null; reviews: number | null; ordersInQueue: number | null; source: 'json' | 'dom'; }
+export interface SellerProfile { username: string; level: string | null; rating: number | null; reviews: number | null; responseTimeHours: number | null; memberSince: string | null; lastDelivery: string | null; country: string | null; languages: string[]; gigCount: number | null; avgGigPrice: number | null; source: 'json' | 'dom'; }

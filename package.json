@@ -1,0 +1,28 @@
+{
+  "name": "giglens",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc --noEmit && vite build",
+    "test": "vitest run",
+    "zip": "node scripts/zip.mjs",
+    "screenshots": "node scripts/screenshots.mjs"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.0.0-beta.28",
+    "@preact/preset-vite": "^2.10.6",
+    "@types/chrome": "^0.3.6",
+    "@types/node": "^26.6.5",
+    "archiver": "^8.0.0",
+    "jsdom": "^29.1.1",
+    "playwright": "^1.64.1",
+    "typescript": "^7.0.2",
+    "vite": "^5.4.21",
+    "vitest": "^2.1.9"
+  },
+  "dependencies": {
+    "preact": "^11.0.2"
+  }
+}
