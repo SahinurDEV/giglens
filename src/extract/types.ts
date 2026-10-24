@@ -2,7 +2,9 @@ export interface GigCard { id: string; title: string; url: string; seller: strin
   isPro?: boolean; isChoice?: boolean; country?: string | null; sellerReviews?: number | null; sellerRating?: number | null; packages?: number | null; online?: boolean;
   details?: GigDetails | null; tried?: boolean; }
 /** Data only available on the gig page itself (fetched on demand). */
-export interface GigDetails { ordersInQueue: number | null; favorites: number | null; tags: string[]; sellerReviews: number | null; country: string | null; completedOrders: number | null; responseTimeHours: number | null; lastDeliveryMs: number | null; memberSinceSec: number | null; priceMin: number | null; priceMax: number | null; fiveStarShare: number | null; fetchedAt: number; }
+export interface GigDetails { ordersInQueue: number | null; favorites: number | null; tags: string[]; sellerReviews: number | null; country: string | null; completedOrders: number | null; responseTimeHours: number | null; lastDeliveryMs: number | null; memberSinceSec: number | null; priceMin: number | null; priceMax: number | null; fiveStarShare: number | null; fetchedAt: number;
+  gigRating?: number | null; gigReviews?: number | null; sellerRating?: number | null; deliveryMin?: number | null; deliveryMax?: number | null; revisionsMin?: number | null; revisionsMax?: number | null;
+  languages?: string[]; subRatings?: { communication: number | null; quality: number | null; value: number | null } | null; packageCount?: number | null; }
 export interface GigPackage { name: string; price: number | null; deliveryDays: number | null; revisions: number | null; }
 export interface GigPage { id: string | null; title: string; seller: string; packages: GigPackage[]; rating: number | null; reviews: number | null; ordersInQueue: number | null; source: 'json' | 'dom'; }
 export interface SellerProfile { username: string; level: string | null; rating: number | null; reviews: number | null; responseTimeHours: number | null; memberSince: string | null; lastDelivery: string | null; country: string | null; languages: string[]; gigCount: number | null; avgGigPrice: number | null; source: 'json' | 'dom'; }

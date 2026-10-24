@@ -52,3 +52,17 @@ describe('filters on real search data', () => {
   it('CSV has queue/favorites/tags columns', () => { const csv = toCsv([{ ...cards[0], details: parseGigDetails(stateFromHtml(gigHtml), 0)! }]); expect(csv.split('\n')[0]).toContain('ordersInQueue,favorites'); expect(csv).toContain(',81,19487,'); });
 });
 it('format helpers', () => { expect(flag('PK')).toBe('🇵🇰'); expect(flag(null)).toBe(''); expect(compact(19487)).toBe('19.5k'); expect(compact(81)).toBe('81'); });
+
+import { moreRows } from '../src/lib/cardRows';
+describe('v0.3 card fields', () => {
+  const d = parseGigDetails(stateFromHtml(gigHtml), 0)!;
+  it('extra gig-page fields', () => expect(d).toMatchObject({ gigRating: 4.9, gigReviews: 14320, sellerRating: 4.9, deliveryMin: 3, deliveryMax: 3, revisionsMin: 3, revisionsMax: Infinity, packageCount: 3, languages: ['English'], subRatings: { communication: 4.9, quality: 4.9, value: 4.8 } }));
+  it('"more" rows list every available field', () => {
+    const c = { ...extractSearch(searchDoc())[0], details: d };
+    const keys = moreRows(c).map((r) => r[0]);
+    expect(keys).toEqual(['Gig rating', 'Seller rating', '5★ share', 'Sub-ratings', 'Price range', 'Delivery', 'Revisions', 'Packages', 'Completed orders', 'Response time', 'Last delivery', 'Member since', 'Country', 'Languages', 'Tags']);
+    const m = Object.fromEntries(moreRows(c));
+    expect(m['Price range']).toBe('$25–$150'); expect(m['Revisions']).toBe('3–∞'); expect(m['Completed orders']).toBe('25,344'); expect(m['Member since']).toBe('Oct 2018');
+  });
+  it('rows without details use search data only', () => { const keys = moreRows(extractSearch(searchDoc())[0]).map((r) => r[0]); expect(keys).toContain('Seller rating'); expect(keys).not.toContain('Tags'); });
+});

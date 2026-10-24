@@ -21,8 +21,8 @@ pk = [{k: p.get(k) for k in ['title', 'price', 'duration', 'revisions']} for p i
 for p in pk: p['revisions'] = {k: p['revisions'][k] for k in ['name', 'included', 'value']}
 gs = {'general': {'gigId': 1, 'gigTitle': 'Sample logo gig'}, 'overview': {'gig': {k: g['overview']['gig'][k] for k in ['rating', 'ratingsCount', 'ordersInQueue']}, 'seller': {'username': 'seller_1'}}, 'packages': {'packageList': pk},
       'topNav': {'gigCollectedCount': g['topNav']['gigCollectedCount']}, 'tags': {'tagsGigList': [{'name': t['name']} for t in g['tags']['tagsGigList']]},
-      'sellerCard': {k: g['sellerCard'][k] for k in ['ratingsCount', 'countryCode', 'responseTime', 'recentDelivery', 'memberSince']},
-      'seller': {'completedOrdersCount': g['seller']['completedOrdersCount']}, 'reviews': {'breakdown': g['reviews']['breakdown']}}
+      'sellerCard': {k: g['sellerCard'][k] for k in ['ratingsCount', 'rating', 'countryCode', 'responseTime', 'recentDelivery', 'memberSince']},
+      'seller': {'completedOrdersCount': g['seller']['completedOrdersCount'], 'user': {'languages': g['seller']['user']['languages']}}, 'reviews': {'breakdown': g['reviews']['breakdown'], 'star_summary': g['reviews']['star_summary']}}
 open(O + 'gig.html', 'w').write(page(gs, f'<h1>Sample logo gig</h1><p>{g["overview"]["gig"]["ordersInQueue"]} orders in queue</p>'))
 s = state('seller.html'); se = s['seller']; u = se['user']
 ss = {'seller': {'user': {'name': 'seller_1', 'joinedAt': u['joinedAt'], 'address': {'countryName': u['address']['countryName']}, 'languages': u['languages']},

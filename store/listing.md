@@ -11,6 +11,8 @@ See price, delivery time, rating and seller stats at a glance while you browse f
 GigLens adds a small panel to freelance gig pages on fiverr.com so you can compare options without opening every tab.
 
 On search results
+- A sort and filter bar above the results
+- A "More details" section on each card: price, delivery and revision ranges, seller rating, response time, member since, languages and tags
 - Badges on each card: price, delivery time, seller level, Pro and Choice labels, rating, reviews, orders in queue, favorites, seller's completed orders and country
 - Sort by any of these
 - Filter by price range, rating, reviews, delivery time, orders in queue, favorites, seller level, Pro, Choice or online sellers
@@ -46,4 +48,4 @@ Show extra information about gigs and sellers on the marketplace pages the user 
 https://sahinurdev.github.io/giglens/privacy.html
 
 ## Screenshots (1280×800)
-store/screenshots/1-search.png, 2-gig.png, 3-seller.png, 4-keywords.png
+store/screenshots/1-search.png, 2-gig.png, 3-seller.png, 4-card-details.png

@@ -4,7 +4,8 @@ A Chrome (Manifest V3) extension that shows more data on freelance gig pages on 
 
 > **Not affiliated with Fiverr.** GigLens is an independent project and is not endorsed by or connected to Fiverr International Ltd. "Fiverr" is a trademark of its owner and is used here only to describe compatibility.
 
-![Search results](store/screenshots/1-search.png)
+![Top bar](store/screenshots/1-search.png)
+![Card details](store/screenshots/4-card-details.png)
 ![Gig packages](store/screenshots/2-gig.png)
 ![Seller stats](store/screenshots/3-seller.png)
 
@@ -13,7 +14,7 @@ _Screenshots: the built extension running on locally saved marketplace pages (no
 ## Features
 | Page | What GigLens adds |
 |---|---|
-| Search / category | Badges: price, delivery days, level, Pro, Choice, rating, reviews, **orders in queue**, **favorites**, **seller's completed orders**, country, optional tags. Sort by any of these (both directions). Filters: price min/max, rating, reviews, delivery, queue min/max, favorites, level, Pro, Choice, online. Top keywords (tag frequency). CSV export. Cards that load while scrolling are picked up automatically. |
+| Search / category | **Inline top bar above the results**: sort buttons (queue, favorites, rating, reviews, price, delivery, completed orders; click again to flip high/low), quick filters (price min/max, rating, reviews, delivery, queue min/max, level, Pro, Choice, online), reset, "showing X of Y", CSV, settings, and a Top focus keywords strip. Per card: a compact badge row plus a **More details** expander (gig and seller rating, 5★ share, sub-ratings, price/delivery/revision ranges, packages, completed orders, response time, last delivery, member since, country, languages, tags). Badges: price, delivery days, level, Pro, Choice, rating, reviews, **orders in queue**, **favorites**, **seller's completed orders**, country, optional tags. Sort by any of these (both directions). Filters: price min/max, rating, reviews, delivery, queue min/max, favorites, level, Pro, Choice, online. Top keywords (tag frequency). CSV export. Cards that load while scrolling are picked up automatically. |
 | Gig | Package table (price, delivery, revisions) + relative value score, orders in queue. |
 | Seller profile | Level, rating, response time, member since, country, languages, gig count, avg. gig price. |
 
@@ -29,7 +30,7 @@ Orders in queue, favorites, tags, seller country and completed orders are not in
 | Page | Field | Source |
 |---|---|---|
 | Search | price, delivery, level, rating, reviews, Pro, Choice, online, country, seller reviews | search page state `listings[0].gigs[]` |
-| Search | orders in queue, favorites, tags, seller completed orders, response time, price range, 5★ share | gig page state (`overview.gig.ordersInQueue`, `topNav.gigCollectedCount`, `tags.tagsGigList`, `seller.completedOrdersCount`, `sellerCard`, `reviews.breakdown`), fetched per visible card |
+| Search | orders in queue, favorites, tags, seller completed orders, response time, last delivery, member since, languages, price/delivery/revision ranges, sub-ratings, 5★ share | gig page state (`overview.gig.ordersInQueue`, `topNav.gigCollectedCount`, `tags.tagsGigList`, `seller.completedOrdersCount`, `sellerCard`, `reviews.breakdown`), fetched per visible card |
 | Gig | package price / delivery / revisions, rating, reviews, orders in queue | `packages.packageList[]` (cents, hours, `-1` = unlimited), `overview.gig` |
 | Seller | level, rating, reviews, response time, member since, country, languages, gig count, avg. gig price | `seller`, `seller.user`, `gigsData[]` |
 | Seller | last delivery | not on seller pages |
