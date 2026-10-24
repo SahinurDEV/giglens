@@ -33,7 +33,7 @@ for p, src in zip(gs['packages']['packageList'], g['packages']['packageList']):
     p['customExtras'] = [{k: e[k] for k in ['label', 'buyerTooltip', 'price', 'duration']} for e in src.get('customExtras', [])]
 import re as _re
 for r in gs['reviews']['reviews']:
-    r['comment'] = _re.sub(r'\b(' + '|'.join(_re.escape(x) for x in ['Rachel', 'Kai', 'kairachel451']) + r')\b', 'the seller', r['comment'])
+    r['comment'] = _re.sub(r'\b(' + '|'.join(_re.escape(x) for x in sorted({w for n in [g['seller']['user'].get('name'), g['seller']['user'].get('fullName'), (g['seller']['user'].get('profile') or {}).get('displayName')] if n for w in [n, *n.split()] if len(w) > 2}, key=len, reverse=True)) + r')\b', 'the seller', r['comment'])
 gs = gs
 open(O + 'gig.html', 'w').write(page(gs, f'<h1>Sample logo gig</h1><p>{g["overview"]["gig"]["ordersInQueue"]} orders in queue</p>'))
 s = state('seller.html'); se = s['seller']; u = se['user']
