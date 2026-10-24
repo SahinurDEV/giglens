@@ -7,4 +7,4 @@ export const CSS = `
 .gl table{border-collapse:collapse;width:100%}.gl td,.gl th{border-bottom:1px solid #eaeef2;padding:4px;text-align:left}
 .gl .best{background:#dafbe1;font-weight:600}.gl dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:0}.gl dt{color:#57606a}
 .gl .x{border:none;background:none;cursor:pointer;font-size:16px}`;
-export const BADGE_CSS = `.giglens-badges{display:flex;flex-wrap:wrap;gap:4px;margin:6px 8px;font:11px system-ui,sans-serif}.giglens-badges span{background:#eef6ff;color:#0a3069;border-radius:4px;padding:1px 5px}`;
+export const BADGE_CSS = `.giglens-badges{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 2px;font:11px system-ui,sans-serif}.giglens-badges span{background:#eef6ff;color:#0a3069;border-radius:4px;padding:1px 5px}`;

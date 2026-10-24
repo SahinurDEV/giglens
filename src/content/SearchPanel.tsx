@@ -4,8 +4,10 @@ import { applyView, SortKey } from '../lib/sort';
 import { toCsv } from '../lib/csv';
 import { BADGE_CSS } from './styles';
 
-function cardEls(): HTMLElement[] { return Array.from(document.querySelectorAll<HTMLElement>('[data-gig-id], .gig-card-layout')); }
-function elFor(c: GigCard, i: number, els: HTMLElement[]) { return els.find((e) => e.dataset.gigId === c.id) ?? els[i]; }
+function cardEls(): HTMLElement[] { return Array.from(document.querySelectorAll<HTMLElement>('[data-gig-id]')); }
+/** Matches by exact id (u_id like "123_0") or gig-id prefix. Cards not rendered in the DOM yet are skipped. */
+function elFor(c: GigCard, _i: number, els: HTMLElement[]) { const base = c.id.split('_')[0]; return els.find((e) => e.dataset.gigId === c.id) ?? els.find((e) => e.dataset.gigId?.split('_')[0] === base); }
+const box = (el: HTMLElement) => (el.closest('.gig-card-layout') as HTMLElement) ?? el;
 
 export function decorate(cards: GigCard[]) {
   if (!document.getElementById('giglens-badge-css')) { const s = document.createElement('style'); s.id = 'giglens-badge-css'; s.textContent = BADGE_CSS; document.head.appendChild(s); }
@@ -15,9 +17,9 @@ export function decorate(cards: GigCard[]) {
     const b = document.createElement('div'); b.className = 'giglens-badges';
     const add = (t: string) => { const s = document.createElement('span'); s.textContent = t; b.appendChild(s); };
     if (c.price != null) add(`$${c.price}`); if (c.deliveryDays != null) add(`${c.deliveryDays}d delivery`);
-    if (c.sellerLevel) add(c.sellerLevel); if (c.rating != null) add(`★ ${c.rating}`); if (c.reviews != null) add(`${c.reviews} reviews`);
+    if (c.sellerLevel) add(c.sellerLevel); if (c.rating != null) add(`★ ${c.rating}`); if (c.reviews != null) add(`${c.reviews} review${c.reviews === 1 ? "" : "s"}`);
     if (c.ordersInQueue != null) add(`${c.ordersInQueue} in queue`); if (c.favorites != null) add(`♥ ${c.favorites}`);
-    el.appendChild(b);
+    (el.querySelector('.basic-gig-card') ?? el).appendChild(b);
   });
 }
 
@@ -29,9 +31,9 @@ export function SearchPanel({ cards }: { cards: GigCard[] }) {
   useEffect(() => { try { chrome.storage?.local.set({ searchPrefs: { key, desc, minRating, maxPrice, minReviews } }); } catch { /* ignore */ } }, [key, desc, minRating, maxPrice, minReviews]);
   const view = applyView(cards, key, desc, { minRating: minRating ? +minRating : undefined, maxPrice: maxPrice ? +maxPrice : undefined, minReviews: minReviews ? +minReviews : undefined });
   useEffect(() => {
-    const els = cardEls(); const parent = els[0]?.parentElement; if (!parent) return;
-    const shown = new Set<HTMLElement>();
-    view.forEach((c) => { const el = elFor(c, cards.indexOf(c), els); if (el) { shown.add(el); el.parentElement === parent && parent.appendChild(el); el.style.display = ''; } });
+    // Reorder within each container separately (search pages have several card sections).
+    const raw = cardEls(); const els = raw.map(box); const shown = new Set<HTMLElement>();
+    view.forEach((c) => { const r = elFor(c, 0, raw); if (!r) return; const el = box(r); shown.add(el); el.parentElement?.appendChild(el); el.style.display = ''; });
     els.forEach((e) => { if (!shown.has(e)) e.style.display = 'none'; });
   }, [key, desc, minRating, maxPrice, minReviews]);
   const exportCsv = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([toCsv(view)], { type: 'text/csv' })); a.download = 'giglens-search.csv'; a.click(); };

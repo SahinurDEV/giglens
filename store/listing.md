@@ -11,17 +11,17 @@ See price, delivery time, rating and seller stats at a glance while you browse f
 GigLens adds a small panel to freelance gig pages on fiverr.com so you can compare options without opening every tab.
 
 On search results
-- Badges on each card: starting price, delivery time, seller level, rating, review count, orders in queue and favorites (when the page provides them)
+- Badges on each card: starting price, delivery time, seller level, rating and review count
 - Sort by price, rating, reviews, delivery time or orders in queue
 - Filter by minimum rating, maximum price and minimum reviews
 - Export the visible results to CSV
 
 On a gig page
-- Basic / Standard / Premium side by side: price, delivery time and revisions
+- Basic / Standard / Premium side by side: price, delivery time and revisions, plus orders in queue
 - A simple value score that compares the packages with each other
 
 On a seller profile
-- Level, rating, response time, member since, last delivery, country, languages, number of gigs and average gig price
+- Level, rating, response time, member since, country, languages, number of gigs and average gig price
 
 Privacy
 GigLens only reads the page you are looking at. It makes no background requests, has no server and collects no data. Your sort and filter choices are saved on your device.

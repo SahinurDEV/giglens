@@ -1,3 +1,5 @@
 node_modules
 dist
 release
+# raw saved marketplace pages (contain real seller data) – never commit
+tests/fixtures/live/
