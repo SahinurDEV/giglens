@@ -18,6 +18,13 @@ _The watchlist screenshot uses simulated history for earlier days; today's value
 
 _Screenshots: the built extension running on locally saved marketplace pages (no live traffic), with seller names replaced and images blurred._
 
+
+## Demo
+
+[![GigLens demo](https://img.youtube.com/vi/F7pSmUuWwjw/hqdefault.jpg)](https://youtu.be/F7pSmUuWwjw)
+
+Watch the [GigLens demo video](https://youtu.be/F7pSmUuWwjw).
+
 ## Features
 | Page | What GigLens adds |
 |---|---|
