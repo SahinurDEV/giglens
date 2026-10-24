@@ -17,6 +17,7 @@ export function extractSearch(doc: Document): GigCard[] {
     source: 'json',
     isPro: !!g.is_pro, isChoice: !!g.is_fiverr_choice, country: g.seller_country ?? null, online: !!g.seller_online,
     sellerReviews: num(g.seller_rating?.count), sellerRating: num(g.seller_rating?.score), packages: num(g.num_of_packages),
+    recurringPct: Array.isArray(g.recurring_options) && g.recurring_options.length ? Math.max(...g.recurring_options.map((r: any) => num(r.discount_percentage) ?? 0)) : null,
   }));
   return extractSearchDom(doc);
 }

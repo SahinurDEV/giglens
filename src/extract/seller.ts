@@ -37,3 +37,13 @@ export function extractSellerDom(doc: Document): SellerProfile | null {
     languages: (domStat(doc, /languages?/i) ?? '').split(',').map((x) => x.trim()).filter(Boolean), gigCount: doc.querySelectorAll('.gig-card-layout').length || null,
     avgGigPrice: prices.length ? Math.round((prices.reduce((a, b) => a + b, 0) / prices.length) * 100) / 100 : null, source: 'dom' };
 }
+
+import { Credentials, ReviewStats } from './types';
+import { reviewStats } from '../lib/reviews';
+/** Seller-page credentials and review stats (state.seller, state.reviewsData.buying_reviews). */
+export function extractSellerExtras(doc: Document): { cred: Credentials | null; rs: ReviewStats | null } {
+  const s = readPageState(doc); const se = s?.seller;
+  const cred = se ? { skills: (se.activeStructuredSkills ?? []).map((x: any) => String(x.label ?? x.name)), certifications: (se.certifications ?? []).map((c: any) => [c.certificationName, c.receivedFrom, c.year].filter(Boolean).join(' · ')),
+    verified: !!se.isVerified, highlyResponsive: !!se.isHighlyResponsive, onVacation: !!se.isOnVacation, vacationEnd: se.vacation?.endDate ?? null } : null;
+  return { cred, rs: reviewStats(s?.reviewsData?.buying_reviews) };
+}

@@ -19,8 +19,12 @@ On search results
 - Top keywords used by the gigs you browse
 - Export the visible results to CSV
 - Works with results that load as you scroll
+- A market summary (price range, typical delivery, orders in queue), saved filter presets and a filter for rising sellers
+- Light and dark themes; English and Bengali (beta)
 
 On a gig page
+- Every package feature and paid add-on side by side, express delivery prices, paid extras and subscription discounts
+- Review statistics, the marketplace's AI summary, and seller skills and certifications
 - Basic / Standard / Premium side by side: price, delivery time and revisions, plus orders in queue
 - A simple value score that compares the packages with each other
 
@@ -48,4 +52,4 @@ Show extra information about gigs and sellers on the marketplace pages the user 
 https://sahinurdev.github.io/giglens/privacy.html
 
 ## Screenshots (1280×800)
-store/screenshots/1-search.png, 2-gig.png, 3-seller.png, 4-card-details.png
+store/screenshots/1-search.png, 2-gig.png, 3-seller.png, 4-card-details.png, 5-dark-bengali.png

@@ -6,6 +6,7 @@ A Chrome (Manifest V3) extension that shows more data on freelance gig pages on 
 
 ![Top bar](store/screenshots/1-search.png)
 ![Card details](store/screenshots/4-card-details.png)
+![Dark mode, Bengali](store/screenshots/5-dark-bengali.png)
 ![Gig packages](store/screenshots/2-gig.png)
 ![Seller stats](store/screenshots/3-seller.png)
 
@@ -15,8 +16,13 @@ _Screenshots: the built extension running on locally saved marketplace pages (no
 | Page | What GigLens adds |
 |---|---|
 | Search / category | **Inline top bar above the results**: sort buttons (queue, favorites, rating, reviews, price, delivery, completed orders; click again to flip high/low), quick filters (price min/max, rating, reviews, delivery, queue min/max, level, Pro, Choice, online), reset, "showing X of Y", CSV, settings, and a Top focus keywords strip. Per card: a compact badge row plus a **More details** expander (gig and seller rating, 5★ share, sub-ratings, price/delivery/revision ranges, packages, completed orders, response time, last delivery, member since, country, languages, tags). Badges: price, delivery days, level, Pro, Choice, rating, reviews, **orders in queue**, **favorites**, **seller's completed orders**, country, optional tags. Sort by any of these (both directions). Filters: price min/max, rating, reviews, delivery, queue min/max, favorites, level, Pro, Choice, online. Top keywords (tag frequency). CSV export. Cards that load while scrolling are picked up automatically. |
-| Gig | Package table (price, delivery, revisions) + relative value score, orders in queue. |
-| Seller profile | Level, rating, response time, member since, country, languages, gig count, avg. gig price. |
+| Gig | Package table (price, delivery, revisions, value score, express delivery, every included feature and paid add-on per package), paid extras, subscription discounts, AI summary, seller skills/certifications/verified/highly-responsive/vacation, review stats (star breakdown, buyer countries, order sizes, repeat and business buyers, top industries). |
+| Seller profile | Level, rating, response time, member since, country, languages, gig count, avg. gig price, skills, certifications, verified/highly-responsive/vacation, review stats. |
+
+### Also in 0.4
+- **Market strip** in the top bar: min / median / max starting price, typical delivery, total orders in queue across loaded gigs (demand).
+- **Saved filter presets**, **Rising** filter (≤ 50 reviews and ≥ 5 orders in queue), **dark mode** (auto/light/dark), and **Bengali UI** (beta – the Bengali strings are a first draft and need review by a native speaker).
+- Review stats: star breakdown and top industries cover all reviews; buyer countries, order sizes and repeat/business counts come from the ~5 reviews embedded in the page, so treat them as a sample.
 
 ### Gig details on search pages
 Orders in queue, favorites, tags, seller country and completed orders are not in search-page data; they are on each gig's own page. With **Load gig details** on (default, can be turned off in the panel's Settings tab), GigLens loads the gig page only for cards you scroll into view, **2 at a time with a 400 ms gap**, and caches results in `chrome.storage.local` for 6 hours. No other site is contacted.

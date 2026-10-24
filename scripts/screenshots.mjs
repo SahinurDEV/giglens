@@ -66,6 +66,11 @@ for (const s of shots) {
   if (s.out === '1-search.png') {
     await page.evaluate(() => { const c = document.querySelector('.giglens-badges .q').closest('.giglens-card'); c.querySelector('details').open = true; const card = c.closest('.gig-card-layout') ?? c; scrollTo(0, card.getBoundingClientRect().top + scrollY - 16); });
     await page.waitForTimeout(300); await page.screenshot({ path: 'store/screenshots/4-card-details.png' }); console.log('saved 4-card-details.png');
+    await page.locator('#giglens-bar button[title="Settings"]').click();
+    const sel = page.locator('#giglens-bar .set select'); await sel.nth(0).selectOption('dark'); await sel.nth(1).selectOption('bn'); await page.waitForTimeout(300);
+    await page.evaluate(() => { const bar = document.getElementById('giglens-bar'); scrollTo(0, bar.getBoundingClientRect().top + scrollY - 12); });
+    await page.waitForTimeout(300); await page.screenshot({ path: 'store/screenshots/5-dark-bengali.png' }); console.log('saved 5-dark-bengali.png');
+    const sel2 = page.locator('#giglens-bar .set select'); await sel2.nth(0).selectOption('light'); await sel2.nth(1).selectOption('en'); await page.waitForTimeout(300);
   }
 }
 await ctx.close();

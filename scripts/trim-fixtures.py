@@ -8,7 +8,7 @@ def page(st, body=''):
     return f'<!doctype html><html><head><meta charset="utf-8"></head><body>{body}<script id="perseus-initial-props" type="application/json">{json.dumps(st)}</script></body></html>\n'
 names = {}
 def anon(n): return names.setdefault(n, f'seller_{len(names)+1}')
-KEEP = ['is_pro', 'is_fiverr_choice', 'seller_country', 'seller_online', 'seller_rating', 'num_of_packages', 'gig_id', 'u_id', 'price_i', 'packages', 'buying_review_rating', 'buying_review_rating_count', 'seller_level']
+KEEP = ['is_pro', 'is_fiverr_choice', 'seller_country', 'seller_online', 'seller_rating', 'num_of_packages', 'recurring_options', 'gig_id', 'u_id', 'price_i', 'packages', 'buying_review_rating', 'buying_review_rating_count', 'seller_level']
 s = state('search.html'); gigs = []
 for i, g in enumerate(s['listings'][0]['gigs'][:12]):
     n = anon(g['seller_name']); x = {k: g[k] for k in KEEP if k in g}
@@ -22,11 +22,27 @@ for p in pk: p['revisions'] = {k: p['revisions'][k] for k in ['name', 'included'
 gs = {'general': {'gigId': 1, 'gigTitle': 'Sample logo gig'}, 'overview': {'gig': {k: g['overview']['gig'][k] for k in ['rating', 'ratingsCount', 'ordersInQueue']}, 'seller': {'username': 'seller_1'}}, 'packages': {'packageList': pk},
       'topNav': {'gigCollectedCount': g['topNav']['gigCollectedCount']}, 'tags': {'tagsGigList': [{'name': t['name']} for t in g['tags']['tagsGigList']]},
       'sellerCard': {k: g['sellerCard'][k] for k in ['ratingsCount', 'rating', 'countryCode', 'responseTime', 'recentDelivery', 'memberSince']},
-      'seller': {'completedOrdersCount': g['seller']['completedOrdersCount'], 'user': {'languages': g['seller']['user']['languages']}}, 'reviews': {'breakdown': g['reviews']['breakdown'], 'star_summary': g['reviews']['star_summary']}}
+      'seller': {'completedOrdersCount': g['seller']['completedOrdersCount'], 'user': {'languages': g['seller']['user']['languages']}}, 'reviews': {'breakdown': g['reviews']['breakdown'], 'star_summary': g['reviews']['star_summary'], 'filters_counters': g['reviews']['filters_counters'],
+        'reviews': [{k: r[k] for k in ['value', 'created_at', 'reviewer_country_code', 'order_price_range_usd', 'repeat_buyer', 'is_business', 'comment']} for r in g['reviews']['reviews']]},
+      'aiSummary': {'summary': g['aiSummary']['summary']}, 'outOfOffice': {'isOnVacation': g['outOfOffice']['isOnVacation'], 'endDate': None}}
+gs['seller'].update({k: g['seller'][k] for k in ['isVerified', 'isHighlyResponsive', 'certifications', 'activeStructuredSkills']})
+gs['packages']['recurringOptions'] = g['packages']['recurringOptions']
+for p, src in zip(gs['packages']['packageList'], g['packages']['packageList']):
+    p['features'] = [{k: f[k] for k in ['name', 'label', 'included', 'type', 'value', 'price']} for f in src['features']]
+    p['extraFast'] = {k: src['extraFast'][k] for k in ['included', 'duration', 'price']} if src.get('extraFast') else None
+    p['customExtras'] = [{k: e[k] for k in ['label', 'buyerTooltip', 'price', 'duration']} for e in src.get('customExtras', [])]
+import re as _re
+for r in gs['reviews']['reviews']:
+    r['comment'] = _re.sub(r'\b(' + '|'.join(_re.escape(x) for x in ['Rachel', 'Kai', 'kairachel451']) + r')\b', 'the seller', r['comment'])
+gs = gs
 open(O + 'gig.html', 'w').write(page(gs, f'<h1>Sample logo gig</h1><p>{g["overview"]["gig"]["ordersInQueue"]} orders in queue</p>'))
 s = state('seller.html'); se = s['seller']; u = se['user']
 ss = {'seller': {'user': {'name': 'seller_1', 'joinedAt': u['joinedAt'], 'address': {'countryName': u['address']['countryName']}, 'languages': u['languages']},
       **{k: se[k] for k in ['achievementLevel', 'sellerLevel', 'rating', 'responseTime', 'approvedGigsCount']}},
       'gigsData': [{'gig_id': i + 1, 'price_i': x['price_i']} for i, x in enumerate(s['gigsData'])]}
+ss['seller'].update({k: se.get(k) for k in ['isVerified', 'isHighlyResponsive', 'isOnVacation', 'certifications', 'activeStructuredSkills']})
+br = s['reviewsData']['buying_reviews']
+ss['reviewsData'] = {'buying_reviews': {'total_count': br.get('total_count'), 'breakdown': br.get('breakdown', []), 'filters_counters': br.get('filters_counters', {}),
+    'reviews': [{k: r.get(k) for k in ['value', 'created_at', 'reviewer_country_code', 'order_price_range_usd', 'repeat_buyer', 'is_business']} | {'comment': ''} for r in br.get('reviews', [])]}}
 open(O + 'seller.html', 'w').write(page(ss))
 print({f: os.path.getsize(O + f) for f in os.listdir(O)})
