@@ -1,5 +1,6 @@
 import { GigCard } from '../extract/types';
-export type SortKey = 'none' | 'price' | 'rating' | 'reviews' | 'deliveryDays' | 'ordersInQueue' | 'favorites' | 'completedOrders' | 'sellerReviews';
+import { dealScore } from './dealScore';
+export type SortKey = 'none' | 'price' | 'rating' | 'reviews' | 'deliveryDays' | 'ordersInQueue' | 'favorites' | 'completedOrders' | 'sellerReviews' | 'dealScore';
 export interface Filter {
   priceMin?: number; priceMax?: number; ratingMin?: number; reviewsMin?: number; deliveryMax?: number;
   queueMin?: number; queueMax?: number; favoritesMin?: number; levels?: string[]; proOnly?: boolean; choiceOnly?: boolean; onlineOnly?: boolean; rising?: boolean;
@@ -12,6 +13,7 @@ export function val(c: GigCard, k: Exclude<SortKey, 'none'>): number | null {
     case 'favorites': return d?.favorites ?? c.favorites;
     case 'completedOrders': return d?.completedOrders ?? null;
     case 'sellerReviews': return d?.sellerReviews ?? c.sellerReviews ?? null;
+    case 'dealScore': return dealScore(c);
     default: return c[k] as number | null;
   }
 }
@@ -36,3 +38,6 @@ export function topKeywords(cards: GigCard[], limit = 40): { tag: string; count:
 /** Rising seller: few reviews but real demand right now. */
 export const RISING = { maxReviews: 50, minQueue: 5 };
 export function isRising(c: GigCard) { const q = val(c, 'ordersInQueue'); return (c.reviews ?? 0) <= RISING.maxReviews && q != null && q >= RISING.minQueue; }
+
+/** Built-in “Best value” preset: solid rating/reviews, reasonable delivery, sorted by deal score. */
+export const BEST_VALUE_VIEW = { key: 'dealScore' as SortKey, desc: true, f: { ratingMin: 4.8, reviewsMin: 20, deliveryMax: 7 } };
