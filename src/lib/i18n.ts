@@ -1,7 +1,7 @@
 // UI strings. English is the default; Bengali (bn) is a first draft and needs review by a native speaker.
 const en = {
   sort: 'Sort', queue: 'Queue', favorites: 'Favorites', rating: 'Rating', reviews: 'Reviews', price: 'Price', delivery: 'Delivery', completed: 'Completed',
-  pageOrder: 'Page order', showing: 'Showing', of: 'of', csv: 'CSV', settings: 'Settings', reset: 'Reset', anyLevel: 'Any level', online: 'Online', rising: 'Rising',
+  pageOrder: 'Page order', showing: 'Showing', of: 'of', csv: 'CSV', settings: 'Settings', reset: 'Reset', anyLevel: 'Any level', online: 'Online', rising: 'Rising', deal: 'Deal', bestValue: 'Best value', collapse: 'Collapse', expand: 'Expand', showMore: 'Show more', showLess: 'Show less', filters: 'Filters',
   min: 'min', max: 'max', days: 'days', ratingMin: 'Rating ≥', reviewsMin: 'Reviews ≥', deliveryMax: 'Delivery ≤', topKeywords: 'Top focus keywords', collecting: 'Collected from gig tags as cards load…',
   presets: 'Presets', savePreset: 'Save as preset', presetName: 'Preset name', deletePreset: 'Delete preset', theme: 'Theme', auto: 'Auto', light: 'Light', dark: 'Dark', language: 'Language',
   loadDetails: 'Load gig details for visible cards (2 at a time, cached 6 h)', country: 'Country', tagsOnCards: 'Tags on cards', detailsOff: 'Gig details off: queue, favorites and tags unavailable', detailsLoaded: 'Details loaded for {n} gigs',
@@ -19,7 +19,7 @@ const en = {
 export type Key = keyof typeof en;
 const bn: Partial<Record<Key, string>> = {
   sort: 'সাজান', queue: 'কিউ', favorites: 'পছন্দ', rating: 'রেটিং', reviews: 'রিভিউ', price: 'দাম', delivery: 'ডেলিভারি', completed: 'সম্পন্ন',
-  pageOrder: 'পেজের ক্রম', showing: 'দেখানো হচ্ছে', of: 'এর মধ্যে', settings: 'সেটিংস', reset: 'রিসেট', anyLevel: 'যেকোনো লেভেল', online: 'অনলাইন', rising: 'উদীয়মান',
+  pageOrder: 'পেজের ক্রম', showing: 'দেখানো হচ্ছে', of: 'এর মধ্যে', settings: 'সেটিংস', reset: 'রিসেট', anyLevel: 'যেকোনো লেভেল', online: 'অনলাইন', rising: 'উদীয়মান', deal: 'ডিল', bestValue: 'বেস্ট ভ্যালু', collapse: 'সংকুচিত', expand: 'প্রসারিত', showMore: 'আরও দেখুন', showLess: 'কম দেখুন', filters: 'ফিল্টার',
   min: 'সর্বনিম্ন', max: 'সর্বোচ্চ', days: 'দিন', ratingMin: 'রেটিং ≥', reviewsMin: 'রিভিউ ≥', deliveryMax: 'ডেলিভারি ≤', topKeywords: 'শীর্ষ কীওয়ার্ড', collecting: 'কার্ড লোড হলে গিগ ট্যাগ থেকে সংগ্রহ করা হচ্ছে…',
   presets: 'প্রিসেট', savePreset: 'প্রিসেট হিসেবে সংরক্ষণ', presetName: 'প্রিসেটের নাম', deletePreset: 'প্রিসেট মুছুন', theme: 'থিম', auto: 'স্বয়ংক্রিয়', light: 'লাইট', dark: 'ডার্ক', language: 'ভাষা',
   loadDetails: 'দৃশ্যমান কার্ডের গিগ বিবরণ লোড করুন (একসাথে ২টি, ৬ ঘণ্টা ক্যাশ)', country: 'দেশ', tagsOnCards: 'কার্ডে ট্যাগ', detailsOff: 'গিগ বিবরণ বন্ধ: কিউ, পছন্দ ও ট্যাগ পাওয়া যাবে না', detailsLoaded: '{n}টি গিগের বিবরণ লোড হয়েছে',

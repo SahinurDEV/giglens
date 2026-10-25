@@ -2,7 +2,8 @@ import { render } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import { GigCard } from '../extract/types';
 import { extractSearch, extractSearchDom } from '../extract/search';
-import { applyView, Filter, SortKey, topKeywords, val } from '../lib/sort';
+import { applyView, Filter, SortKey, topKeywords, val, BEST_VALUE_VIEW } from '../lib/sort';
+import { dealScore, dealTier } from '../lib/dealScore';
 import { toCsv } from '../lib/csv';
 import { compact, flag } from '../lib/format';
 import { moreRows } from '../lib/cardRows';
@@ -36,6 +37,8 @@ export function renderBadges(c: GigCard) {
   const wrap = document.createElement('div'); wrap.className = 'giglens-card' + (isDark(settings) ? ' gl-dark' : '');
   const b = document.createElement('div'); b.className = 'giglens-badges';
   const d = c.details; const q = val(c, 'ordersInQueue'); const fav = val(c, 'favorites');
+  const score = dealScore(c); const tier = dealTier(score);
+  if (score != null && tier) badge(b, `${t('deal')} ${score}`, `Deal score ${score}/100 (rating, reviews, queue, price, delivery)`, `deal ${tier}`);
   if (q != null) badge(b, `🚚 ${compact(q)} ${t('inQueue')}`, `${q} orders in queue (running orders)`, 'q');
   if (fav != null) badge(b, `♥ ${compact(fav)}`, `${fav} times saved to favorites`, 'f');
   if (d?.completedOrders != null) badge(b, `✔ ${compact(d.completedOrders)} ${t('done')}`, `${d.completedOrders} orders completed by the seller`, 'o');
@@ -73,7 +76,6 @@ const io = new IntersectionObserver((entries) => entries.forEach((e) => {
 
 function sync() {
   const els = cardEls();
-  // Cards rendered after load (scroll, pagination) that aren't in page state: read them from the DOM.
   els.forEach((el) => { if (!cards.some((c) => findEl(c, [el]))) { const [dc] = extractSearchDom({ querySelectorAll: () => [el] } as unknown as Document); if (dc) cards.push(dc); } });
   cards.forEach((c) => { const el = findEl(c, els); if (!el) return; if (!el.querySelector('.giglens-card')) renderBadges(c); if (!el.dataset.glObserved) { el.dataset.glObserved = '1'; io.observe(el); } });
   notify();
@@ -81,10 +83,20 @@ function sync() {
 
 /* ---------- inline top bar ---------- */
 const LEVELS = ['New', 'Level 1', 'Level 2', 'Top Rated'];
-const SORTS: [SortKey, string, () => string][] = [['ordersInQueue', '🚚', () => t('queue')], ['favorites', '♥', () => t('favorites')], ['rating', '★', () => t('rating')], ['reviews', '', () => t('reviews')], ['price', '$', () => t('price')], ['deliveryDays', '', () => t('delivery')], ['completedOrders', '✔', () => t('completed')]];
+const SORTS: [SortKey, string, () => string][] = [
+  ['dealScore', '◆', () => t('deal')],
+  ['ordersInQueue', '🚚', () => t('queue')],
+  ['favorites', '♥', () => t('favorites')],
+  ['rating', '★', () => t('rating')],
+  ['reviews', '', () => t('reviews')],
+  ['price', '$', () => t('price')],
+  ['deliveryDays', '', () => t('delivery')],
+  ['completedOrders', '✔', () => t('completed')],
+];
 export interface View { key: SortKey; desc: boolean; f: Filter; }
 const VIEW0: View = { key: 'none', desc: true, f: {} };
 let numFound: number | null = null;
+const KW_PREVIEW = 10;
 
 function Num({ ph, v, set, w = 62 }: { ph: string; v?: number; set: (n?: number) => void; w?: number }) {
   return <input type="number" placeholder={ph} title={ph} style={`width:${w}px`} value={v ?? ''} onInput={(e) => { const x = (e.target as HTMLInputElement).value; set(x === '' ? undefined : +x); }} />;
@@ -93,9 +105,18 @@ function Num({ ph, v, set, w = 62 }: { ph: string; v?: number; set: (n?: number)
 export function TopBar() {
   useTick();
   const [v, setV] = useState<View>(VIEW0); const [st, setSt] = useState(settings); const [showSet, setShowSet] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [kwOpen, setKwOpen] = useState(false);
   const [presets, setPresets] = useState<Record<string, View>>({});
-  useEffect(() => { chrome.storage?.local.get(['searchView', 'presets']).then((r) => { const x = r?.searchView as View | undefined; if (x?.f) setV(x); if (r?.presets) setPresets(r.presets as Record<string, View>); }).catch(() => {}); }, []);
+  useEffect(() => {
+    chrome.storage?.local.get(['searchView', 'presets', 'barCollapsed']).then((r) => {
+      const x = r?.searchView as View | undefined; if (x?.f) setV(x);
+      if (r?.presets) setPresets(r.presets as Record<string, View>);
+      if (typeof r?.barCollapsed === 'boolean') setCollapsed(r.barCollapsed);
+    }).catch(() => {});
+  }, []);
   const save = (n: View) => { setV(n); chrome.storage?.local.set({ searchView: n }).catch(() => {}); };
+  const toggleCollapsed = () => { const n = !collapsed; setCollapsed(n); chrome.storage?.local.set({ barCollapsed: n }).catch(() => {}); };
   const view = applyView(cards, v.key, v.desc, v.f);
   useEffect(() => {
     const els = cardEls(); const shown = new Set<HTMLElement>();
@@ -109,15 +130,22 @@ export function TopBar() {
   const onPage = cards.filter((c) => findEl(c)).length; const shownOnPage = view.filter((c) => findEl(c)).length;
   const fetched = cards.filter((c) => c.details).length;
   const exportCsv = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([toCsv(view)], { type: 'text/csv' })); a.download = 'giglens-search.csv'; a.click(); };
-  const kw = st.showKeywords ? topKeywords(cards, 30) : [];
+  const allKw = st.showKeywords ? topKeywords(cards, 30) : [];
+  const kw = kwOpen ? allKw : allKw.slice(0, KW_PREVIEW);
   const ins = insights(cards);
   const chk = (label: string, k: keyof Filter) => <label class="chk"><input type="checkbox" checked={!!f[k]} onChange={(e) => upd({ [k]: (e.target as HTMLInputElement).checked })} />{label}</label>;
-  return (<div class={'bar' + (isDark(st) ? ' dark' : '')}>
+  const isBest = v.key === 'dealScore' && f.ratingMin === 4.8 && f.reviewsMin === 20 && f.deliveryMax === 7;
+  return (<div class="bar">
     <div class="row head"><b class="brand">GigLens</b>
-      <span class="lbl">{t('sort')}</span>{SORTS.map(([k, ic, l]) => <button class={v.key === k ? 'on' : ''} title="Click again to flip high/low" onClick={() => sortBy(k)}>{ic ? ic + ' ' : ''}{l()}{v.key === k ? (v.desc ? ' ↓' : ' ↑') : ''}</button>)}
+      {!collapsed && <><span class="lbl">{t('sort')}</span>{SORTS.map(([k, ic, l]) => <button class={v.key === k ? 'on' : ''} title="Click again to flip high/low" onClick={() => sortBy(k)}>{ic ? ic + ' ' : ''}{l()}{v.key === k ? (v.desc ? ' ↓' : ' ↑') : ''}</button>)}
       {v.key !== 'none' && <button class="ghost" onClick={() => save({ ...v, key: 'none' })}>{t('pageOrder')}</button>}
+      <button class={'primary' + (isBest ? ' on' : '')} title="Rating ≥ 4.8 · Reviews ≥ 20 · Delivery ≤ 7d · sort by Deal" onClick={() => save({ ...BEST_VALUE_VIEW })}>{t('bestValue')}</button></>}
       <span class="sp" /><span class="count">{t('showing')} <b>{shownOnPage}</b> {t('of')} {onPage}</span>
-      <button onClick={exportCsv}>{t('csv')}</button><button class="ghost" title={t('settings')} onClick={() => setShowSet(!showSet)}>⚙</button></div>
+      {!collapsed && <button onClick={exportCsv}>{t('csv')}</button>}
+      {!collapsed && <button class="ghost" title={t('settings')} onClick={() => setShowSet(!showSet)}>⚙</button>}
+      <button class="icon ghost" title={collapsed ? t('expand') : t('collapse')} onClick={toggleCollapsed}>{collapsed ? '▾' : '▴'}</button>
+    </div>
+    {!collapsed && <>
     <div class="row">
       <span class="lbl">{t('price')}</span><Num ph={`${t('min')} $`} v={f.priceMin} set={(n) => upd({ priceMin: n })} /><Num ph={`${t('max')} $`} v={f.priceMax} set={(n) => upd({ priceMax: n })} />
       <span class="lbl">{t('ratingMin')}</span><Num ph="4.8" v={f.ratingMin} set={(n) => upd({ ratingMin: n })} w={50} />
@@ -137,10 +165,13 @@ export function TopBar() {
     {showSet && <div class="row set">
       {([['enrich', t('loadDetails')], ['showCountry', t('country')], ['showTags', t('tagsOnCards')], ['showKeywords', t('topKeywords')], ['dailyRefresh', t('dailyRefresh')]] as [keyof Settings, string][]).map(([k, l]) =>
         <label class="chk"><input type="checkbox" checked={!!st[k]} onChange={(e) => setSetting({ [k]: (e.target as HTMLInputElement).checked })} />{l}</label>)}
-      <span class="lbl">{t('theme')}</span><select value={st.theme} onChange={(e) => setSetting({ theme: (e.target as HTMLSelectElement).value as Settings['theme'] })}><option value="auto">{t('auto')}</option><option value="light">{t('light')}</option><option value="dark">{t('dark')}</option></select>
-      <span class="lbl">{t('language')}</span><select value={st.lang} onChange={(e) => setSetting({ lang: (e.target as HTMLSelectElement).value as Settings['lang'] })}><option value="en">English</option><option value="bn">বাংলা (beta)</option></select>
       <small>{st.enrich ? t('detailsLoaded', { n: fetched }) : t('detailsOff')}</small></div>}
-    {st.showKeywords && <div class="row kw"><span class="lbl">{t('topKeywords')}</span>{kw.length ? kw.map((k) => <span class="tag" title={`${k.count} of ${fetched} loaded gigs`}>{k.tag} <b>{k.count}</b></span>) : <small>{t('collecting')}</small>}</div>}
+    {st.showKeywords && <div class="row kw"><span class="lbl">{t('topKeywords')}</span>
+      <div class="chips">{kw.length ? kw.map((k) => <span class="tag" title={`${k.count} of ${fetched} loaded gigs`}>{k.tag} <b>{k.count}</b></span>) : <small>{t('collecting')}</small>}
+      {allKw.length > KW_PREVIEW && <button class="ghost" onClick={() => setKwOpen(!kwOpen)}>{kwOpen ? t('showLess') : `${t('showMore')} (${allKw.length - KW_PREVIEW})`}</button>}
+      </div></div>}
+    </>}
+    {collapsed && <div class="row"><span class="collapsed-hint">{t('filters')} · {v.key !== 'none' ? `${t('sort')}: ${v.key}` : t('pageOrder')} · {Object.keys(f).filter((k) => (f as Record<string, unknown>)[k]).length} active</span></div>}
   </div>);
 }
 
@@ -155,7 +186,10 @@ function mountBar() {
 }
 
 export async function runSearch() {
-  settings = await loadSettings(); setLang(settings.lang);
+  settings = await loadSettings();
+  // Keep UI English / light for search overlays (Theme & Language controls removed).
+  settings = { ...settings, theme: 'light', lang: 'en' };
+  setLang('en');
   queue ??= new EnrichQueue(2, 400);
   pruneCache();
   cards = extractSearch(document);
